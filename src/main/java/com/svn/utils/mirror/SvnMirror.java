@@ -1,6 +1,6 @@
 package com.svn.utils.mirror;
 
-import com.svn.utils.mirror.gui.MainWindow;
+import com.svn.utils.mirror.gui.main.MainWindow;
 
 /**
  * SvnMirror
