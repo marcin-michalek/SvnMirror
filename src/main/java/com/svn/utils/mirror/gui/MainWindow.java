@@ -22,11 +22,11 @@ public class MainWindow extends JFrame {
 
     public MainWindow(String title) throws HeadlessException {
         super(title);
-        setContentPane(rootPanel);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        pack();
-        setVisible(true);
+        initAndShowMainWindow();
+        addListeners();
+    }
 
+    private void addListeners() {
         createRepoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -35,6 +35,14 @@ public class MainWindow extends JFrame {
                 }
             }
         });
+    }
+
+    private void initAndShowMainWindow() {
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setContentPane(rootPanel);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        pack();
+        setVisible(true);
     }
 
     private void appendToPane(JTextPane jTextPane, String message, Color color) {
