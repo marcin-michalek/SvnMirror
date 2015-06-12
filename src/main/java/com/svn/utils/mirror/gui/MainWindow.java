@@ -1,6 +1,9 @@
 package com.svn.utils.mirror.gui;
 
+import com.svn.utils.mirror.app.CreateRepoInt;
 import com.svn.utils.mirror.app.Mirror;
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNURL;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
@@ -15,10 +18,11 @@ import java.awt.event.ActionListener;
  * SvnMirror
  * Created by Marcin on 2015-06-12.
  */
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements CreateRepoInt {
     private JPanel rootPanel;
     private JButton createRepoButton;
     private JTextPane logTextPane;
+    private JTextField nameTextField;
 
     public MainWindow(String title) throws HeadlessException {
         super(title);
@@ -30,9 +34,7 @@ public class MainWindow extends JFrame {
         createRepoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (Mirror.createRepo()) {
-                    appendToPane(logTextPane, "Repo created!", Color.GREEN);
-                }
+                Mirror.createRepo(nameTextField.getText(), MainWindow.this);
             }
         });
     }
@@ -54,5 +56,15 @@ public class MainWindow extends JFrame {
         jTextPane.setCaretPosition(len);
         jTextPane.setCharacterAttributes(attributeSet, false);
         jTextPane.replaceSelection(message);
+    }
+
+    @Override
+    public void onRepoCreated(SVNURL svnurl) {
+        appendToPane(logTextPane, "Repo created: " + svnurl.getPath(), Color.GREEN);
+    }
+
+    @Override
+    public void onRepoCreationException(SVNException e) {
+        appendToPane(logTextPane, "Repo created: " + e.getMessage(), Color.GREEN);
     }
 }
