@@ -33,7 +33,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         createRepoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Mirror.createRepo(nameTextField.getText(), MainWindow.this);
+                //Mirror.createRepo(nameTextField.getText(), MainWindow.this);
             }
         });
     }
