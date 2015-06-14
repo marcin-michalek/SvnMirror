@@ -1,3 +1,3 @@
 # SvnMirror
 
-Using git-flow. Go to develop branch.
+Java application which creates two svn repositories and sets up mirroring between them.
