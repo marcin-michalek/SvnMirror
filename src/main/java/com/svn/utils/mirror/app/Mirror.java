@@ -1,6 +1,8 @@
 package com.svn.utils.mirror.app;
 
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.internal.wc.admin.SVNAdminArea;
+import org.tmatesoft.svn.core.internal.wc.admin.SVNAdminArea16;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import java.io.File;

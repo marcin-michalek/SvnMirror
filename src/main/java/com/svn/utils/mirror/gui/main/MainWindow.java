@@ -1,7 +1,9 @@
 package com.svn.utils.mirror.gui.main;
 
+import com.jcraft.jsch.JSchException;
 import com.svn.utils.mirror.app.CreateRepoInt;
 import com.svn.utils.mirror.app.Mirror;
+import com.svn.utils.mirror.app.ssh.SshConnect;
 import com.svn.utils.mirror.gui.logger.StatusLogger;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -10,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
+import java.util.List;
 
 /**
  * SvnMirror
