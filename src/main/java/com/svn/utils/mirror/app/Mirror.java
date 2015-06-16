@@ -12,7 +12,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
-import java.io.File;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -108,5 +108,24 @@ public final class Mirror {
 
     public void synchronize() throws SVNException {
         synchronize(baseRepositoryURL, mirrorRepositoryURL);
+    }
+
+    public void createHooks() throws IOException {
+        String text = "#!/bin/sh \n" +
+                "svnsync --non-interactive sync " +
+                "file://"+mirrorRepositoryURL.getURIEncodedPath();
+        File file = new File(baseRepositoryURL.getURIEncodedPath() + "/hooks/post-commit");
+        file.createNewFile();
+        file.setExecutable(true);
+        BufferedWriter output = null;
+        try {
+            output = new BufferedWriter(new FileWriter(file));
+            output.write(text);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (output != null) output.close();
+        }
+
     }
 }
