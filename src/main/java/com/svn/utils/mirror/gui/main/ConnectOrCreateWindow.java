@@ -26,14 +26,14 @@ public class ConnectOrCreateWindow extends JFrame {
         createMirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainWindow("Stworz mirroring", RepoAction.CREATE_NEW_REPO_MIRROR);
+                new MainWindow("Create mirroring", RepoAction.CREATE_NEW_REPO_MIRROR);
                 setVisible(false);
             }
         });
         connectWithExistingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainWindow("Polacz z instniejaca konfiguracja ", RepoAction.CONNECT_TO_EXISTING_REPO_MIRROR);
+                new MainWindow("Attach to existing configuration", RepoAction.CONNECT_TO_EXISTING_REPO_MIRROR);
                 setVisible(false);
             }
         });

@@ -20,7 +20,7 @@
         <properties>
           <horizontalAlignment value="0"/>
           <horizontalTextPosition value="0"/>
-          <text value="SvnMirror - program umożliwiający mirroring repozytorium SVN"/>
+          <text value="SvnMirror - tool for establishing SVN repo mirroring"/>
         </properties>
       </component>
       <component id="c6306" class="javax.swing.JButton" binding="connectWithExistingButton">
@@ -28,7 +28,7 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Połącz z instniejącą konfiguracją"/>
+          <text value="Attach to existing configuration"/>
         </properties>
       </component>
       <component id="a94e1" class="javax.swing.JButton" binding="createMirrorButton">
@@ -36,7 +36,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Stwórz mirroring"/>
+          <text value="Create mirroring"/>
         </properties>
       </component>
     </children>
