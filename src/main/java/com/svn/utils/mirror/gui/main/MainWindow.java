@@ -2,6 +2,7 @@ package com.svn.utils.mirror.gui.main;
 
 import com.svn.utils.mirror.app.CreateRepoInt;
 import com.svn.utils.mirror.app.Mirror;
+import com.svn.utils.mirror.gui.enums.RepoAction;
 import com.svn.utils.mirror.gui.logger.StatusLogger;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -21,10 +22,12 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JTextPane logTextPane;
     private JTextField nameTextField;
     private StatusLogger statusLogger;
+    private RepoAction repoAction;
 
-    public MainWindow(String title) throws HeadlessException {
+    public MainWindow(String title, RepoAction repoAction) throws HeadlessException {
         super(title);
         statusLogger = new StatusLogger(logTextPane);
+        this.repoAction = repoAction;
         initAndShowMainWindow();
         addListeners();
     }
