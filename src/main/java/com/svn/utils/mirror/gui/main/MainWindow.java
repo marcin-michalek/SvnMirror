@@ -37,6 +37,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
+    private Mirror mirror;
 
     public MainWindow(String title, RepoAction repoAction) throws HeadlessException {
         super(title);
@@ -45,6 +46,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         initView();
         initFormBasedOnRepoAction();
         addListeners();
+        mirror = Mirror.getInstance();
     }
 
     private void initView() {
@@ -58,7 +60,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     }
 
     private void initRemoteOrLocalComboBox() {
-        DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<>();
+        DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<RepositoryModel>();
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.REMOTE));
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.LOCAL));
         repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
@@ -87,7 +89,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         mirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Mirror.createRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
+                mirror.createRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
             }
         });
 

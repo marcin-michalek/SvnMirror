@@ -48,12 +48,14 @@ public final class Mirror {
         return url;
     }
 
-    public void createBaseRepo(String name) throws SVNException {
+    public SVNURL createBaseRepo(String name) throws SVNException {
         baseRepositoryURL = createRepo(name);
+        return baseRepositoryURL;
     }
 
-    public void createMirrorRepo(String name) throws SVNException {
+    public SVNURL createMirrorRepo(String name) throws SVNException {
         mirrorRepositoryURL = createRepo(name);
+        return mirrorRepositoryURL;
     }
 
     public void loadBaseRepostory(SVNURL url) throws SVNException {
@@ -113,7 +115,7 @@ public final class Mirror {
     public void createHooks() throws IOException {
         String text = "#!/bin/sh \n" +
                 "svnsync --non-interactive sync " +
-                "file://"+mirrorRepositoryURL.getURIEncodedPath();
+                "file://" + mirrorRepositoryURL.getURIEncodedPath();
         File file = new File(baseRepositoryURL.getURIEncodedPath() + "/hooks/post-commit");
         file.createNewFile();
         file.setExecutable(true);
@@ -127,5 +129,23 @@ public final class Mirror {
             if (output != null) output.close();
         }
 
+    }
+
+    public void createRepo(String name, CreateRepoInt createRepoInt) {
+        try {
+            SVNURL svnURL = createRepo(name);
+            createRepoInt.onRepoCreated(svnURL);
+        } catch (SVNException e) {
+            createRepoInt.onRepoCreationException(e);
+        }
+    }
+
+    public void createMirrorRepo(String name, CreateRepoInt createRepoInt) {
+        try {
+            SVNURL svnURL = createMirrorRepo(name);
+            createRepoInt.onRepoCreated(svnURL);
+        } catch (SVNException e) {
+            createRepoInt.onRepoCreationException(e);
+        }
     }
 }
