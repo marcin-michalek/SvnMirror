@@ -75,6 +75,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         // @TODO hide & show GUI parts
         switch (repoAction) {
             case CONNECT_TO_EXISTING_REPO_MIRROR:
+                mirrorButton.setText("Attach");
                 break;
             case CREATE_NEW_REPO_MIRROR:
                 break;
