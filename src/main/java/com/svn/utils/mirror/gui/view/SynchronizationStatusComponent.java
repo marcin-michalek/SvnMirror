@@ -4,7 +4,7 @@ import com.svn.utils.mirror.gui.enums.SynchronizationStatus;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * SvnMirror
@@ -34,13 +34,13 @@ public class SynchronizationStatusComponent extends JComponent {
                 break;
         }
 
-        Graphics2D g2d = (Graphics2D)g;
-        Ellipse2D.Double circle = new Ellipse2D.Double(getX(),
+        Graphics2D g2d = (Graphics2D) g;
+        Rectangle2D.Double circle = new Rectangle2D.Double(getX(),
                 getY(),
-                getHeight(),
+                getWidth(),
                 getHeight());
         g2d.fill(circle);
         g2d.setColor(Color.BLACK);
-        g2d.drawString(synchronizationStatus.toString(), getX(), getY() + getHeight()/2);
+        g2d.drawString(synchronizationStatus.toString(), getX(), getY() + getHeight() / 2);
     }
 }
