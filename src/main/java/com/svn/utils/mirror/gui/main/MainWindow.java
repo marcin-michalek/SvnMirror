@@ -10,6 +10,7 @@ import com.svn.utils.mirror.gui.model.RepositoryModel;
 import com.svn.utils.mirror.gui.view.SynchronizationStatusComponent;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -25,14 +26,14 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JPanel rootPanel;
     private JButton mirrorButton;
     private JTextPane logTextPane;
-    private JTextField sourcePathTextField;
+    private JTextField sourceRepositoryPathTextField;
     private JTextField destinationRepositoryPathTextField;
-    private JComboBox repositoryType;
+    private JComboBox repositoryTypeComboBox;
     private JTextField loginTextFields;
     private JPasswordField passwordField;
     private JPanel rootServerLoginPanel;
     private JEditorPane detailsPane;
-    private JPanel synchroStatusPanel;
+    private JPanel synchronizationStatusPanel;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
@@ -41,28 +42,36 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         super(title);
         statusLogger = new StatusLogger(logTextPane);
         this.repoAction = repoAction;
-        initializeView();
-        initializeFormBasedOnRepoAction();
+        initView();
+        initFormBasedOnRepoAction();
         addListeners();
     }
 
-    private void initializeView() {
+    private void initView() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setContentPane(rootPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         pack();
         setVisible(true);
-        synchronizationStatusComponent = new SynchronizationStatusComponent();
-        synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.WAITING_FOR_FEEDBACK);
-        synchroStatusPanel.add(synchronizationStatusComponent);
+        initSynchronizationStatusComponent();
+        initRemoteOrLocalComboBox();
+    }
 
+    private void initRemoteOrLocalComboBox() {
         DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<>();
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.REMOTE));
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.LOCAL));
-        repositoryType.setModel(repositoryTypeComboBoxModel);
+        repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
+
     }
 
-    private void initializeFormBasedOnRepoAction() {
+    private void initSynchronizationStatusComponent() {
+        synchronizationStatusComponent = new SynchronizationStatusComponent();
+        synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.WAITING_FOR_FEEDBACK);
+        synchronizationStatusPanel.add(synchronizationStatusComponent);
+    }
+
+    private void initFormBasedOnRepoAction() {
         // @TODO hide & show GUI parts
         switch (repoAction) {
             case CONNECT_TO_EXISTING_REPO_MIRROR:
@@ -77,11 +86,11 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         mirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Mirror.createRepo(sourcePathTextField.getText(), MainWindow.this);
+                Mirror.createRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
             }
         });
 
-        repositoryType.addItemListener(new ItemListener() {
+        repositoryTypeComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {

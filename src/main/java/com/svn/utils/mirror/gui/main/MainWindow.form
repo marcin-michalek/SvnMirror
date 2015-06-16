@@ -21,7 +21,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="ddc3e" class="javax.swing.JTextField" binding="sourcePathTextField">
+      <component id="ddc3e" class="javax.swing.JTextField" binding="sourceRepositoryPathTextField">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -59,7 +59,7 @@
           </component>
         </children>
       </scrollpane>
-      <component id="3fbfa" class="javax.swing.JComboBox" binding="repositoryType">
+      <component id="3fbfa" class="javax.swing.JComboBox" binding="repositoryTypeComboBox">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
           <forms/>
@@ -131,7 +131,7 @@
           <text value="Synchronization:"/>
         </properties>
       </component>
-      <grid id="7dd0b" binding="synchroStatusPanel" layout-manager="CardLayout" hgap="0" vgap="0">
+      <grid id="7dd0b" binding="synchronizationStatusPanel" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="2" column="2" row-span="3" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms defaultalign-vert="false"/>
