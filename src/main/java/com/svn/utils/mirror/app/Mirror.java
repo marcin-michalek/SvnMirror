@@ -1,8 +1,6 @@
 package com.svn.utils.mirror.app;
 
-import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNPropertyValue;
-import org.tmatesoft.svn.core.SVNURL;
+import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
@@ -10,11 +8,14 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * SvnMirror
@@ -58,42 +59,30 @@ public final class Mirror {
         return mirrorRepositoryURL;
     }
 
-    public void loadBaseRepostory(SVNURL url) throws SVNException {
+    public void loadBaseRepository(SVNURL url) throws SVNException {
         baseRepository = SVNRepositoryFactory.create(url);
         //authenticate(mirrorRepository, name, password);
+    }
 
+    public void loadMirrorRepository(SVNURL url) throws SVNException {
+        mirrorRepository = SVNRepositoryFactory.create(url);
+        //authenticate(mirrorRepository, name, password);
     }
 
     public void loadBaseRepositoryURL(String url) throws SVNException {
         baseRepositoryURL = SVNURL.fromFile(new File(url));
+        loadBaseRepository(baseRepositoryURL);
     }
 
     public void loadMirrorRepositoryURL(String url) throws SVNException {
         mirrorRepositoryURL = SVNURL.fromFile(new File(url));
-    }
-
-    public void loadMirrorRepostory(SVNURL url, String name, String password) throws SVNException {
-        mirrorRepository = SVNRepositoryFactory.create(url);
-        //authenticate(mirrorRepository, name, password);
-
+        loadMirrorRepository(mirrorRepositoryURL);
     }
 
     public void authenticate(SVNRepository repository, String name, String password) {
         ISVNAuthenticationManager authManager =
                 SVNWCUtil.createDefaultAuthenticationManager(name, password);
         repository.setAuthenticationManager(authManager);
-    }
-
-    private void setupSvnRepositoryFactory() {
-        SVNRepositoryFactoryImpl.setup();
-    }
-
-    private void setupHttpRepositoryFactory() {
-        DAVRepositoryFactory.setup();
-    }
-
-    private void setupFileRepositoryFactory() {
-        FSRepositoryFactory.setup();
     }
 
     private void initializeRepository(SVNURL fromRepos, SVNURL toRepos) throws SVNException {
@@ -148,4 +137,83 @@ public final class Mirror {
             createRepoInt.onRepoCreationException(e);
         }
     }
+
+    long getRevison(SVNRepository repository) throws SVNException {
+        return repository.getLatestRevision();
+    }
+
+    long getMirrorRevison() throws SVNException {
+        return mirrorRepository.getLatestRevision();
+    }
+
+    long getBaseRevison() throws SVNException {
+        return baseRepository.getLatestRevision();
+    }
+
+    boolean isSynced() throws SVNException {
+        return getBaseRevison() == getMirrorRevison();
+    }
+
+    public String listEntries(String path) throws SVNException {
+        Collection entries = baseRepository.getDir(path, -1, null, (Collection) null);
+        Iterator iterator = entries.iterator();
+        String output = "";
+        while (iterator.hasNext()) {
+            SVNDirEntry entry = (SVNDirEntry) iterator.next();
+            output += ("/" + (path.equals("") ? "" : path + "/") + entry.getName() +
+                    " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision() +
+                    "; date: " + entry.getDate() + ")\n");
+            if (entry.getKind() == SVNNodeKind.DIR) {
+                listEntries((path.equals("")) ? entry.getName() : path + "/" + entry.getName());
+            }
+        }
+        return output;
+    }
+
+    String getHistory(long startRevision, long endRevision) throws SVNException {
+        String history = "";
+        Collection logEntries = null;
+
+        logEntries = baseRepository.log(new String[]{""}, null, startRevision, endRevision, true, true);
+        for (Iterator entries = logEntries.iterator(); entries.hasNext(); ) {
+            SVNLogEntry logEntry = (SVNLogEntry) entries.next();
+            history+="\n---------------------------------------------\n";
+            history+="\nrevision: " + logEntry.getRevision();
+            history+="\nauthor: " + logEntry.getAuthor();
+            history+="\ndate: " + logEntry.getDate();
+            history+="\nlog message: " + logEntry.getMessage();
+            if (logEntry.getChangedPaths().size() > 0) {
+                history+="\nchanged paths:";
+                Set changedPathsSet = logEntry.getChangedPaths().keySet();
+
+                for (Iterator changedPaths = changedPathsSet.iterator(); changedPaths.hasNext(); ) {
+                    SVNLogEntryPath entryPath = (SVNLogEntryPath) logEntry.getChangedPaths().get(changedPaths.next());
+                    String a=" "
+                            + entryPath.getType()
+                            + " "
+                            + entryPath.getPath()
+                            + ((entryPath.getCopyPath() != null) ? " (from "
+                            + entryPath.getCopyPath() + " revision "
+                            + entryPath.getCopyRevision() + ")" : "");
+                    history+=a;
+                }
+            }
+        }
+            return history;
+    }
+
+    String getHistory() throws SVNException {
+        return getHistory(0,-1);
+    }
+
+        public static void main(String[] args) throws SVNException {
+        Mirror mirror = Mirror.getInstance();
+        mirror.loadBaseRepositoryURL("repos/base/");
+        mirror.loadMirrorRepositoryURL("repos/mirror");
+
+        System.out.println(mirror.listEntries(""));
+        System.out.println(mirror.getHistory(1,1));
+    }
+
+
 }
