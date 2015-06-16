@@ -1,6 +1,6 @@
 package com.svn.utils.mirror;
 
-import com.svn.utils.mirror.gui.main.MainWindow;
+import com.svn.utils.mirror.gui.main.ConnectOrCreateWindow;
 
 /**
  * SvnMirror
@@ -8,6 +8,6 @@ import com.svn.utils.mirror.gui.main.MainWindow;
  */
 public class SvnMirror {
     public static void main(String[] args) {
-        new MainWindow("HelloWorldSwing");
+        new ConnectOrCreateWindow("SvnMirror");
     }
 }
