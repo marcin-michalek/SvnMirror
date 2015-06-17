@@ -30,11 +30,11 @@ public class StatusLogger {
     }
 
     public void logError(String message) {
-        appendToPane(logContainer, message, Color.RED);
+        appendToPane(logContainer, message+"\n", Color.RED);
     }
 
     public void logSuccess(String message) {
-        appendToPane(logContainer, message, Color.GREEN);
+        appendToPane(logContainer, message+"\n", Color.GREEN);
 
     }
 }

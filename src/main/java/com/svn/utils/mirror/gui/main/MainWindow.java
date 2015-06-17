@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -107,6 +108,10 @@ public class MainWindow extends JFrame implements CreateRepoInt {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mirror.createBaseRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
+                mirror.createMirrorRepo(destinationRepositoryPathTextField.getText(), MainWindow.this);
+                mirror.initializeRepository(MainWindow.this);
+                mirror.synchronize(MainWindow.this);
+                mirror.createHooks(MainWindow.this);
             }
         });
 
@@ -141,5 +146,37 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     @Override
     public void onRepoCreationException(SVNException e) {
         statusLogger.logError("Repo creation failed: " + e.getMessage());
+    }
+
+    @Override
+    public void onInitialization(Boolean b) {
+        statusLogger.logSuccess("Mirror initialized");
+    }
+
+    @Override
+    public void onInitializationException(SVNException e) {
+        statusLogger.logError("Mirror initialization failed: " + e.getMessage());
+
+    }
+
+    @Override
+    public void onSynchronization(Boolean b) {
+        statusLogger.logSuccess("Repos synchronized");
+    }
+
+    @Override
+    public void onSynchronizationException(SVNException e) {
+        statusLogger.logError("Repo synchronization failed: " + e.getMessage());
+    }
+
+    @Override
+    public void onHooksCreated(Boolean b) {
+        statusLogger.logSuccess("Hooks created");
+
+    }
+
+    @Override
+    public void onHoosCreatedException(IOException e) {
+        statusLogger.logError("Hooks creation failed" + e.getMessage());
     }
 }

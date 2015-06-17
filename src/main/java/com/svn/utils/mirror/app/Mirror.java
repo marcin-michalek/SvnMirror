@@ -86,6 +86,15 @@ public final class Mirror {
         svnClientManager.getAdminClient().doInitialize(baseRepositoryURL, mirrorRepositoryURL);
     }
 
+    public void initializeRepository(CreateRepoInt createRepoInt) {
+        try {
+            initializeRepository(baseRepositoryURL, mirrorRepositoryURL);
+            createRepoInt.onInitialization(true);
+        } catch (SVNException e) {
+            createRepoInt.onInitializationException(e);
+        }
+    }
+
     public void initializeRepository() throws SVNException {
         initializeRepository(baseRepositoryURL, mirrorRepositoryURL);
     }
@@ -98,15 +107,25 @@ public final class Mirror {
         synchronize(baseRepositoryURL, mirrorRepositoryURL);
     }
 
+    public void synchronize(CreateRepoInt createRepoInt) {
+        try {
+            synchronize(baseRepositoryURL, mirrorRepositoryURL);
+            createRepoInt.onSynchronization(true);
+        } catch (SVNException e) {
+            createRepoInt.onSynchronizationException(e);
+        }
+    }
+
     public void createHooks() throws IOException {
         String text = "#!/bin/sh \n" +
                 "svnsync --non-interactive sync " +
                 "file://" + mirrorRepositoryURL.getURIEncodedPath();
         File file = new File(baseRepositoryURL.getURIEncodedPath() + "/hooks/post-commit");
-        file.createNewFile();
-        file.setExecutable(true);
         BufferedWriter output = null;
+
         try {
+            file.createNewFile();
+            file.setExecutable(true);
             output = new BufferedWriter(new FileWriter(file));
             output.write(text);
         } catch (IOException e) {
@@ -117,9 +136,18 @@ public final class Mirror {
 
     }
 
+    public void createHooks(CreateRepoInt createRepoInt) {
+        try {
+            createHooks();
+            createRepoInt.onHooksCreated(true);
+        } catch (IOException e) {
+            createRepoInt.onHoosCreatedException(e);
+        }
+    }
+
     public void createBaseRepo(String name, CreateRepoInt createRepoInt) {
         try {
-            SVNURL svnURL = createRepo(name);
+            SVNURL svnURL = createBaseRepo(name);
             createRepoInt.onRepoCreated(svnURL);
         } catch (SVNException e) {
             createRepoInt.onRepoCreationException(e);
@@ -200,6 +228,10 @@ public final class Mirror {
         return history;
     }
 
+    Revision getRevision(int i) throws SVNException {
+        return getRevisions().get(i);
+    }
+
     List<Revision> getRevisions() throws SVNException {
         List<Revision> list = new ArrayList<>();
         Collection logEntries = null;
@@ -212,7 +244,7 @@ public final class Mirror {
             revision.setDate(logEntry.getDate());
             revision.setMessage(logEntry.getMessage());
             if (logEntry.getChangedPaths().size() > 0) {
-                String info= "";
+                String info = "";
                 Set changedPathsSet = logEntry.getChangedPaths().keySet();
 
                 for (Iterator changedPaths = changedPathsSet.iterator(); changedPaths.hasNext(); ) {
@@ -241,9 +273,11 @@ public final class Mirror {
         Mirror mirror = Mirror.getInstance();
         mirror.loadBaseRepositoryURL("repos/base/");
         mirror.loadMirrorRepositoryURL("repos/mirror");
-        for(Revision r:mirror.getRevisions()){
+        for (Revision r : mirror.getRevisions()) {
             System.out.println(r);
         }
+        System.out.println(mirror.getRevision(3));
+
     }
 
 
