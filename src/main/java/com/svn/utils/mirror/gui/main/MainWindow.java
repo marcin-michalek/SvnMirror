@@ -34,6 +34,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JPanel rootServerLoginPanel;
     private JEditorPane detailsPane;
     private JPanel synchronizationStatusPanel;
+    private JList revisionsList;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
