@@ -2,12 +2,13 @@ package com.svn.utils.mirror.gui.main;
 
 import com.svn.utils.mirror.app.CreateRepoInt;
 import com.svn.utils.mirror.app.Mirror;
+import com.svn.utils.mirror.app.Revision;
 import com.svn.utils.mirror.gui.enums.RepoAction;
 import com.svn.utils.mirror.gui.enums.RepositoryType;
 import com.svn.utils.mirror.gui.enums.SynchronizationStatus;
+import com.svn.utils.mirror.gui.logger.DetailsLogger;
 import com.svn.utils.mirror.gui.logger.StatusLogger;
 import com.svn.utils.mirror.gui.model.RepositoryModel;
-import com.svn.utils.mirror.gui.model.Revision;
 import com.svn.utils.mirror.gui.model.RevisionModel;
 import com.svn.utils.mirror.gui.view.SynchronizationStatusComponent;
 import org.tmatesoft.svn.core.SVNException;
@@ -38,17 +39,21 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JTextField loginTextFields;
     private JPasswordField passwordField;
     private JPanel rootServerLoginPanel;
-    private JEditorPane detailsPane;
+    private JTextPane detailsPane;
     private JPanel synchronizationStatusPanel;
     private JList revisionsList;
+    private JButton refreshButton;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
     private Mirror mirror;
+    private RevisionModel revisionModel;
+    private DetailsLogger detailsLogger;
 
     public MainWindow(String title, RepoAction repoAction) throws HeadlessException {
         super(title);
         statusLogger = new StatusLogger(logTextPane);
+        detailsLogger = new DetailsLogger(detailsPane);
         this.repoAction = repoAction;
         initView();
         initFormBasedOnRepoAction();
@@ -64,9 +69,6 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         setVisible(true);
         initSynchronizationStatusComponent();
         initRemoteOrLocalComboBox();
-
-        //@todo temp
-        setRevisionList(new RevisionModel().getRevisions());
     }
 
 
@@ -112,11 +114,13 @@ public class MainWindow extends JFrame implements CreateRepoInt {
                 mirror.initializeRepository(MainWindow.this);
                 mirror.synchronize(MainWindow.this);
                 mirror.createHooks(MainWindow.this);
-                if(mirror.isSynced(MainWindow.this)) {
+                if (mirror.isSynced(MainWindow.this)) {
                     synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
-                }else {
+                } else {
                     synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
                 }
+
+                updateUIAfterAction();
             }
         });
 
@@ -137,10 +141,27 @@ public class MainWindow extends JFrame implements CreateRepoInt {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    detailsPane.setText(revisionsList.getSelectedValue().toString());
+                    detailsLogger.logRevisionDetails((Revision) revisionsList.getSelectedValue());
                 }
             }
         });
+
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateUIAfterAction();
+            }
+        });
+    }
+
+    private void updateUIAfterAction() {
+        try {
+            detailsPane.setText("");
+            revisionModel = new RevisionModel(mirror.getRevisions());
+            setRevisionList(revisionModel.getRevisions());
+        } catch (SVNException e) {
+            statusLogger.logError(e.getMessage());
+        }
     }
 
     @Override

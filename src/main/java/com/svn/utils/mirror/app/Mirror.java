@@ -236,11 +236,11 @@ public final class Mirror {
         return history;
     }
 
-    Revision getRevision(int i) throws SVNException {
+    public Revision getRevision(int i) throws SVNException {
         return getRevisions().get(i);
     }
 
-    List<Revision> getRevisions() throws SVNException {
+    public List<Revision> getRevisions() throws SVNException {
         List<Revision> list = new ArrayList<>();
         Collection logEntries = null;
         logEntries = baseRepository.log(new String[]{""}, null, 0, -1, true, true);
