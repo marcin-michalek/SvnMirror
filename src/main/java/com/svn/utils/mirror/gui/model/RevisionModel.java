@@ -1,7 +1,7 @@
 package com.svn.utils.mirror.gui.model;
 
-import java.util.ArrayList;
-import java.util.Date;
+import com.svn.utils.mirror.app.Revision;
+
 import java.util.List;
 
 /**
@@ -11,13 +11,8 @@ import java.util.List;
 public class RevisionModel {
     private List<Revision> revisions;
 
-    public RevisionModel() {
-        Revision r1 = new Revision("Commit " + new Date().getTime());
-        Revision r2 = new Revision("Commit " + new Date().toString());
-
-        revisions = new ArrayList<>();
-        revisions.add(r1);
-        revisions.add(r2);
+    public RevisionModel(List<Revision> revisions) {
+        this.revisions = revisions;
     }
 
     public List<Revision> getRevisions() {

@@ -55,13 +55,17 @@ public class Revision {
 
     @Override
     public String toString() {
-        String info="";
-        info+="\n---------------------------------------------\n";
-        info+="\nrevision: " + getId();
-        info+="\nauthor: " + getAuthor();
-        info+="\ndate: " + getDate();
-        info+="\nlog message: " + getMessage();
-        info+="\nchanged paths:" + getChanges();
+        return id + " - " + message;
+    }
+
+    public String getInfo() {
+        String info = "";
+        info += "\n---------------------------------------------\n";
+        info += "\nrevision: " + getId();
+        info += "\nauthor: " + getAuthor();
+        info += "\ndate: " + getDate();
+        info += "\nlog message: " + getMessage();
+        info += "\nchanged paths:" + getChanges();
         return info;
     }
 }
