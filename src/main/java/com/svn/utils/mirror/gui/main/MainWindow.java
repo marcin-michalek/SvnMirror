@@ -112,6 +112,11 @@ public class MainWindow extends JFrame implements CreateRepoInt {
                 mirror.initializeRepository(MainWindow.this);
                 mirror.synchronize(MainWindow.this);
                 mirror.createHooks(MainWindow.this);
+                if(mirror.isSynced(MainWindow.this)) {
+                    synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
+                }else {
+                    synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+                }
             }
         });
 
@@ -176,7 +181,14 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     }
 
     @Override
-    public void onHoosCreatedException(IOException e) {
+    public void onHooksCreatedException(IOException e) {
         statusLogger.logError("Hooks creation failed" + e.getMessage());
     }
+
+    @Override
+    public void onIsSyncedException(SVNException e) {
+        statusLogger.logError("Hooks creation failed" + e.getMessage());
+
+    }
+
 }

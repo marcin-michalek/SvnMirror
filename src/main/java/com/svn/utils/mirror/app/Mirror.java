@@ -2,13 +2,9 @@ package com.svn.utils.mirror.app;
 
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import java.io.*;
@@ -48,11 +44,13 @@ public final class Mirror {
 
     public SVNURL createBaseRepo(String name) throws SVNException {
         baseRepositoryURL = createRepo(name);
+        baseRepository = SVNRepositoryFactory.create(baseRepositoryURL);
         return baseRepositoryURL;
     }
 
     public SVNURL createMirrorRepo(String name) throws SVNException {
         mirrorRepositoryURL = createRepo(name);
+        mirrorRepository = SVNRepositoryFactory.create(mirrorRepositoryURL);
         return mirrorRepositoryURL;
     }
 
@@ -141,7 +139,7 @@ public final class Mirror {
             createHooks();
             createRepoInt.onHooksCreated(true);
         } catch (IOException e) {
-            createRepoInt.onHoosCreatedException(e);
+            createRepoInt.onHooksCreatedException(e);
         }
     }
 
@@ -175,9 +173,19 @@ public final class Mirror {
         return baseRepository.getLatestRevision();
     }
 
-    boolean isSynced() throws SVNException {
+    public boolean isSynced() throws SVNException {
         return getBaseRevison() == getMirrorRevison();
 
+    }
+
+    public boolean isSynced(CreateRepoInt createRepoInt) {
+        boolean b = false;
+        try {
+            b = getBaseRevison() == getMirrorRevison();
+        } catch (SVNException e) {
+            createRepoInt.onIsSyncedException(e);
+        }
+        return b;
     }
 
     public String listEntries(String path) throws SVNException {

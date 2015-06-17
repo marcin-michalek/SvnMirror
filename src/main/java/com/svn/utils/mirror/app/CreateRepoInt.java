@@ -17,5 +17,6 @@ public interface CreateRepoInt {
     void onSynchronization(Boolean b);
     void onSynchronizationException(SVNException e);
     void onHooksCreated(Boolean b);
-    void onHoosCreatedException(IOException e);
+    void onHooksCreatedException(IOException e);
+    void onIsSyncedException(SVNException e);
 }
