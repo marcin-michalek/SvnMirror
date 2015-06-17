@@ -7,16 +7,21 @@ import com.svn.utils.mirror.gui.enums.RepositoryType;
 import com.svn.utils.mirror.gui.enums.SynchronizationStatus;
 import com.svn.utils.mirror.gui.logger.StatusLogger;
 import com.svn.utils.mirror.gui.model.RepositoryModel;
+import com.svn.utils.mirror.gui.model.Revision;
+import com.svn.utils.mirror.gui.model.RevisionModel;
 import com.svn.utils.mirror.gui.view.SynchronizationStatusComponent;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.List;
 
 /**
  * SvnMirror
@@ -34,6 +39,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JPanel rootServerLoginPanel;
     private JEditorPane detailsPane;
     private JPanel synchronizationStatusPanel;
+    private JList revisionsList;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
@@ -57,14 +63,25 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         setVisible(true);
         initSynchronizationStatusComponent();
         initRemoteOrLocalComboBox();
+
+        //@todo temp
+        setRevisionList(new RevisionModel().getRevisions());
     }
+
 
     private void initRemoteOrLocalComboBox() {
         DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<RepositoryModel>();
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.REMOTE));
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.LOCAL));
         repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
+    }
 
+    private void setRevisionList(List<Revision> revisionList) {
+        DefaultListModel<Revision> revisionDefaultListModel = new DefaultListModel<>();
+        for (Revision revision : revisionList) {
+            revisionDefaultListModel.addElement(revision);
+        }
+        revisionsList.setModel(revisionDefaultListModel);
     }
 
     private void initSynchronizationStatusComponent() {
@@ -102,6 +119,15 @@ public class MainWindow extends JFrame implements CreateRepoInt {
                     } else {
                         rootServerLoginPanel.setVisible(true);
                     }
+                }
+            }
+        });
+
+        revisionsList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    detailsPane.setText(revisionsList.getSelectedValue().toString());
                 }
             }
         });
