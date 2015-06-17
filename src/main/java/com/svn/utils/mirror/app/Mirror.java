@@ -12,10 +12,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * SvnMirror
@@ -120,7 +117,7 @@ public final class Mirror {
 
     }
 
-    public void createRepo(String name, CreateRepoInt createRepoInt) {
+    public void createBaseRepo(String name, CreateRepoInt createRepoInt) {
         try {
             SVNURL svnURL = createRepo(name);
             createRepoInt.onRepoCreated(svnURL);
@@ -152,6 +149,7 @@ public final class Mirror {
 
     boolean isSynced() throws SVNException {
         return getBaseRevison() == getMirrorRevison();
+
     }
 
     public String listEntries(String path) throws SVNException {
@@ -177,42 +175,75 @@ public final class Mirror {
         logEntries = baseRepository.log(new String[]{""}, null, startRevision, endRevision, true, true);
         for (Iterator entries = logEntries.iterator(); entries.hasNext(); ) {
             SVNLogEntry logEntry = (SVNLogEntry) entries.next();
-            history+="\n---------------------------------------------\n";
-            history+="\nrevision: " + logEntry.getRevision();
-            history+="\nauthor: " + logEntry.getAuthor();
-            history+="\ndate: " + logEntry.getDate();
-            history+="\nlog message: " + logEntry.getMessage();
+            history += "\n---------------------------------------------\n";
+            history += "\nrevision: " + logEntry.getRevision();
+            history += "\nauthor: " + logEntry.getAuthor();
+            history += "\ndate: " + logEntry.getDate();
+            history += "\nlog message: " + logEntry.getMessage();
             if (logEntry.getChangedPaths().size() > 0) {
-                history+="\nchanged paths:";
+                history += "\nchanged paths:";
                 Set changedPathsSet = logEntry.getChangedPaths().keySet();
 
                 for (Iterator changedPaths = changedPathsSet.iterator(); changedPaths.hasNext(); ) {
                     SVNLogEntryPath entryPath = (SVNLogEntryPath) logEntry.getChangedPaths().get(changedPaths.next());
-                    String a=" "
+                    String a = " "
                             + entryPath.getType()
                             + " "
                             + entryPath.getPath()
                             + ((entryPath.getCopyPath() != null) ? " (from "
                             + entryPath.getCopyPath() + " revision "
                             + entryPath.getCopyRevision() + ")" : "");
-                    history+=a;
+                    history += a;
                 }
             }
         }
-            return history;
+        return history;
+    }
+
+    List<Revision> getRevisions() throws SVNException {
+        List<Revision> list = new ArrayList<>();
+        Collection logEntries = null;
+        logEntries = baseRepository.log(new String[]{""}, null, 0, -1, true, true);
+        for (Iterator entries = logEntries.iterator(); entries.hasNext(); ) {
+            Revision revision = new Revision();
+            SVNLogEntry logEntry = (SVNLogEntry) entries.next();
+            revision.setId(logEntry.getRevision());
+            revision.setAuthor(logEntry.getAuthor());
+            revision.setDate(logEntry.getDate());
+            revision.setMessage(logEntry.getMessage());
+            if (logEntry.getChangedPaths().size() > 0) {
+                String info= "";
+                Set changedPathsSet = logEntry.getChangedPaths().keySet();
+
+                for (Iterator changedPaths = changedPathsSet.iterator(); changedPaths.hasNext(); ) {
+                    SVNLogEntryPath entryPath = (SVNLogEntryPath) logEntry.getChangedPaths().get(changedPaths.next());
+                    String a = " "
+                            + entryPath.getType()
+                            + " "
+                            + entryPath.getPath()
+                            + ((entryPath.getCopyPath() != null) ? " (from "
+                            + entryPath.getCopyPath() + " revision "
+                            + entryPath.getCopyRevision() + ")" : "");
+                    info += a;
+                }
+                revision.setChanges(info);
+            }
+            list.add(revision);
+        }
+        return list;
     }
 
     String getHistory() throws SVNException {
-        return getHistory(0,-1);
+        return getHistory(0, -1);
     }
 
-        public static void main(String[] args) throws SVNException {
+    public static void main(String[] args) throws SVNException {
         Mirror mirror = Mirror.getInstance();
         mirror.loadBaseRepositoryURL("repos/base/");
         mirror.loadMirrorRepositoryURL("repos/mirror");
-
-        System.out.println(mirror.listEntries(""));
-        System.out.println(mirror.getHistory(1,1));
+        for(Revision r:mirror.getRevisions()){
+            System.out.println(r);
+        }
     }
 
 

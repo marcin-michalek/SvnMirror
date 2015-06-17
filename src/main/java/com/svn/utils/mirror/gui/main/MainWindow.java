@@ -89,7 +89,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         mirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mirror.createRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
+                mirror.createBaseRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
             }
         });
 
