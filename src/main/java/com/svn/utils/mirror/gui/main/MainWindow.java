@@ -73,9 +73,8 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
         initRemoteOrLocalComboBox();
     }
 
-
     private void initRemoteOrLocalComboBox() {
-        DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<RepositoryModel>();
+        DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<>();
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.REMOTE));
         repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.LOCAL));
         repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
@@ -108,22 +107,23 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
     }
 
     private void addListeners() {
-        mirrorButton.addActionListener(new ActionListener() {
+        addMirrorButtonClickListener();
+        addRepositoryTypeComboBoxItemListener();
+        addRevisionListSelectionListener();
+    }
+
+    private void addRevisionListSelectionListener() {
+        revisionsList.addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                mirror.createBaseRepo(sourceRepositoryPathTextField.getText(), MainWindow.this);
-                mirror.createMirrorRepo(destinationRepositoryPathTextField.getText(), MainWindow.this);
-                mirror.initializeRepository(MainWindow.this);
-                mirror.synchronize(MainWindow.this);
-                mirror.createHooks(MainWindow.this);
-                if (mirror.isSynced(MainWindow.this)) {
-                    synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
-                } else {
-                    synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    detailsLogger.logRevisionDetails((Revision) revisionsList.getSelectedValue());
                 }
             }
         });
+    }
 
+    private void addRepositoryTypeComboBoxItemListener() {
         repositoryTypeComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -136,15 +136,26 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
                 }
             }
         });
+    }
 
-        revisionsList.addListSelectionListener(new ListSelectionListener() {
+    private void addMirrorButtonClickListener() {
+        mirrorButton.addActionListener(new ActionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    detailsLogger.logRevisionDetails((Revision) revisionsList.getSelectedValue());
-                }
+            public void actionPerformed(ActionEvent e) {
+                mirror.initializeAndCreateRepoMirroring(sourceRepositoryPathTextField.getText(),
+                        destinationRepositoryPathTextField.getText(),
+                        MainWindow.this);
+                updateSynchronizationStatusComponent();
             }
         });
+    }
+
+    private void updateSynchronizationStatusComponent() {
+        if (mirror.isSynced(MainWindow.this)) {
+            synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
+        } else {
+            synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+        }
     }
 
     private void startRefreshingStatusWorker() {
@@ -198,5 +209,4 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
         statusLogger.logError("Hooks creation failed" + e.getMessage());
 
     }
-
 }

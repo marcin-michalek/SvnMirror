@@ -7,7 +7,10 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -35,6 +38,15 @@ public final class Mirror {
 
     public void init() {
         svnClientManager = SVNClientManager.newInstance();
+    }
+
+    public void initializeAndCreateRepoMirroring(String sourceRepoPath, String destinationRepoPath,
+                                                 CreateRepoInt createRepoInt) {
+        mirror.createBaseRepo(sourceRepoPath, createRepoInt);
+        mirror.createMirrorRepo(destinationRepoPath, createRepoInt);
+        mirror.initializeRepository(createRepoInt);
+        mirror.synchronize(createRepoInt);
+        mirror.createHooks(createRepoInt);
     }
 
     public SVNURL createRepo(String name) throws SVNException {
