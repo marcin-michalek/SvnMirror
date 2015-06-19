@@ -198,7 +198,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="Refresh"/>
+          <text value="Start updating status"/>
           <toolTipText value="refresh status"/>
         </properties>
       </component>
