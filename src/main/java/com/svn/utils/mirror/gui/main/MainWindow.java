@@ -43,7 +43,6 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
     private JTextPane detailsPane;
     private JPanel synchronizationStatusPanel;
     private JList revisionsList;
-    private JButton refreshButton;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
@@ -88,7 +87,6 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
             revisionDefaultListModel.addElement(revision);
         }
         revisionsList.setModel(revisionDefaultListModel);
-//        updateUIAfterAction();
     }
 
     private void initSynchronizationStatusComponent() {
@@ -147,27 +145,10 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
                 }
             }
         });
-
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startRefreshingStatusWorker();
-            }
-        });
     }
 
     private void startRefreshingStatusWorker() {
         new Thread(refreshRepoStatusWorker).start();
-    }
-
-    private void updateUIAfterAction() {
-        try {
-            detailsPane.setText("");
-            revisionModel = new RevisionModel(mirror.getRevisions());
-            setRevisionList(revisionModel.getRevisions());
-        } catch (SVNException e) {
-            statusLogger.logError(e.getMessage());
-        }
     }
 
     @Override
@@ -204,7 +185,7 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
     @Override
     public void onHooksCreated(Boolean b) {
         statusLogger.logSuccess("Hooks created");
-
+        startRefreshingStatusWorker();
     }
 
     @Override
