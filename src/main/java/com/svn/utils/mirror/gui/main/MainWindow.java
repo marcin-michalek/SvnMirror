@@ -11,6 +11,7 @@ import com.svn.utils.mirror.gui.logger.StatusLogger;
 import com.svn.utils.mirror.gui.model.RepositoryModel;
 import com.svn.utils.mirror.gui.model.RevisionModel;
 import com.svn.utils.mirror.gui.view.SynchronizationStatusComponent;
+import com.svn.utils.mirror.gui.worker.RefreshRepoStatusWorker;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * SvnMirror
  * Created by Marcin on 2015-06-12.
  */
-public class MainWindow extends JFrame implements CreateRepoInt {
+public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSetter {
     private JPanel rootPanel;
     private JButton mirrorButton;
     private JTextPane logTextPane;
@@ -42,13 +43,13 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     private JTextPane detailsPane;
     private JPanel synchronizationStatusPanel;
     private JList revisionsList;
-    private JButton refreshButton;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
     private Mirror mirror;
     private RevisionModel revisionModel;
     private DetailsLogger detailsLogger;
+    private RefreshRepoStatusWorker refreshRepoStatusWorker;
 
     public MainWindow(String title, RepoAction repoAction) throws HeadlessException {
         super(title);
@@ -59,6 +60,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         initFormBasedOnRepoAction();
         addListeners();
         mirror = Mirror.getInstance();
+        refreshRepoStatusWorker = new RefreshRepoStatusWorker(this, mirror);
     }
 
     private void initView() {
@@ -79,7 +81,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
         repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
     }
 
-    private void setRevisionList(List<Revision> revisionList) {
+    public void setRevisionList(List<Revision> revisionList) {
         DefaultListModel<Revision> revisionDefaultListModel = new DefaultListModel<>();
         for (Revision revision : revisionList) {
             revisionDefaultListModel.addElement(revision);
@@ -119,8 +121,6 @@ public class MainWindow extends JFrame implements CreateRepoInt {
                 } else {
                     synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
                 }
-
-                updateUIAfterAction();
             }
         });
 
@@ -145,23 +145,10 @@ public class MainWindow extends JFrame implements CreateRepoInt {
                 }
             }
         });
-
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateUIAfterAction();
-            }
-        });
     }
 
-    private void updateUIAfterAction() {
-        try {
-            detailsPane.setText("");
-            revisionModel = new RevisionModel(mirror.getRevisions());
-            setRevisionList(revisionModel.getRevisions());
-        } catch (SVNException e) {
-            statusLogger.logError(e.getMessage());
-        }
+    private void startRefreshingStatusWorker() {
+        new Thread(refreshRepoStatusWorker).start();
     }
 
     @Override
@@ -198,7 +185,7 @@ public class MainWindow extends JFrame implements CreateRepoInt {
     @Override
     public void onHooksCreated(Boolean b) {
         statusLogger.logSuccess("Hooks created");
-
+        startRefreshingStatusWorker();
     }
 
     @Override
