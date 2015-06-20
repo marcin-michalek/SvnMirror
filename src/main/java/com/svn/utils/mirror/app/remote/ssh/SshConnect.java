@@ -3,6 +3,7 @@ package com.svn.utils.mirror.app.remote.ssh;
 import com.jcraft.jsch.*;
 import com.svn.utils.mirror.app.remote.Configuration;
 
+import javax.naming.ConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public class SshConnect {
 
     private Session session;
+    private static final String CAN_CREATE_REPO = "svnadmin --version";
 
     public SshConnect(String user, String password, String host) throws JSchException {
         JSch jSch = new JSch();
@@ -22,10 +24,13 @@ public class SshConnect {
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
     }
-    public void sendFile(Configuration configuration) throws JSchException, FileNotFoundException, SftpException {
+    public void sendFile(Configuration configuration) throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
+
         session.connect();
         Channel channel = session.openChannel("sftp");
         channel.connect();
+        execute(channel,CAN_CREATE_REPO);
+
         ChannelSftp channelSftp = (ChannelSftp)channel;
         File configurationFile = configuration.getConfig();
         channelSftp.put(new FileInputStream(configurationFile),configurationFile.getName());
@@ -75,7 +80,7 @@ public class SshConnect {
             if (channel.isClosed()) {
                 if (in.available() > 0) continue;
                 System.out.println("exit-status: " + channel.getExitStatus());
-                if(channel.getExitStatus() == 127)
+                if(channel.getExitStatus() != 0)
                     throw new CommandNotFoundException("Command " + command + " on remote host");
                 break;
             }

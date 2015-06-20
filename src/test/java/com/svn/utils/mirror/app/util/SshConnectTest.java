@@ -8,7 +8,9 @@ import com.svn.utils.mirror.app.remote.ssh.SshConnect;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.naming.ConfigurationException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class SshConnectTest {
     }
 
     @Test
-    public void fileTransferTest() throws JSchException, FileNotFoundException, SftpException {
+    public void fileTransferTest() throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
         SshConnect connect = new SshConnect(USERNAME,PASSWORD,HOST);
         connect.sendFile(new Configuration());
     }
