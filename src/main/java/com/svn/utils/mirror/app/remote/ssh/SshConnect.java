@@ -1,9 +1,9 @@
-package com.svn.utils.mirror.app.ssh;
+package com.svn.utils.mirror.app.remote.ssh;
 
 import com.jcraft.jsch.*;
+import com.svn.utils.mirror.app.remote.Configuration;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +22,17 @@ public class SshConnect {
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
     }
+    public void sendFile(Configuration configuration) throws JSchException, FileNotFoundException, SftpException {
+        session.connect();
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp channelSftp = (ChannelSftp)channel;
+        File configurationFile = configuration.getConfig();
+        channelSftp.put(new FileInputStream(configurationFile),configurationFile.getName());
 
-    public List<String> executeCommands(List<String> commands) {
+
+    }
+    public List<String> executeCommands(List<String> commands) throws CommandNotFoundException {
         List<String> result = new ArrayList<>(commands.size());
         try {
 
@@ -49,7 +58,7 @@ public class SshConnect {
         return session.isConnected();
     }
 
-    public String execute(Channel channel, String command) throws JSchException, IOException {
+    private String execute(Channel channel, String command) throws JSchException, IOException, CommandNotFoundException {
         ((ChannelExec) channel).setCommand(command);
         channel.setInputStream(null);
         ((ChannelExec) channel).setErrStream(System.err);
@@ -66,6 +75,8 @@ public class SshConnect {
             if (channel.isClosed()) {
                 if (in.available() > 0) continue;
                 System.out.println("exit-status: " + channel.getExitStatus());
+                if(channel.getExitStatus() == 127)
+                    throw new CommandNotFoundException("Command " + command + " on remote host");
                 break;
             }
         }
@@ -80,4 +91,6 @@ public class SshConnect {
     public Session getSession() {
         return session;
     }
+
+
 }
