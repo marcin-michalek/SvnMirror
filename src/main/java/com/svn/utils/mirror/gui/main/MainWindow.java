@@ -86,6 +86,7 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
             revisionDefaultListModel.addElement(revision);
         }
         revisionsList.setModel(revisionDefaultListModel);
+        updateSynchronizationStatusComponent();
     }
 
     private void initSynchronizationStatusComponent() {
