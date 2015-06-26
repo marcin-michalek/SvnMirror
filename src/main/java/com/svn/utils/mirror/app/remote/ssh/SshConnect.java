@@ -24,17 +24,17 @@ public class SshConnect {
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
     }
-    public void sendFile(Configuration configuration) throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
+    public void sendFile(File configuration) throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
 
         session.connect();
-        Channel channel = session.openChannel("sftp");
+        Channel channel = session.openChannel("exec");
         channel.connect();
         execute(channel,CAN_CREATE_REPO);
-
+        channel = session.openChannel("sftp");
         ChannelSftp channelSftp = (ChannelSftp)channel;
-        File configurationFile = configuration.getConfig();
-        channelSftp.put(new FileInputStream(configurationFile),configurationFile.getName());
-
+        File configurationFile = configuration;
+        channelSftp.put(new FileInputStream(configurationFile),"./"+configurationFile.getName());
+        channel.disconnect();
 
     }
     public List<String> executeCommands(List<String> commands) throws CommandNotFoundException {

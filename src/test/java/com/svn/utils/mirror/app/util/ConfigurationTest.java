@@ -24,7 +24,7 @@ public class ConfigurationTest {
                         "file://","post-commit"
         );
         try {
-            File file = configuration.getConfig();
+            File file = configuration.build();
             String content = new Scanner(file).useDelimiter("\\Z").next();
             System.out.println(content);
         } catch (ConfigurationException e) {

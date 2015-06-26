@@ -39,7 +39,7 @@ public class SshConnectTest {
     @Test
     public void fileTransferTest() throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
         SshConnect connect = new SshConnect(USERNAME,PASSWORD,HOST);
-        connect.sendFile(new Configuration());
+        connect.sendFile(new Configuration().build());
     }
 
     @Test(expected = CommandNotFoundException.class)

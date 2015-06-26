@@ -38,22 +38,25 @@ public class Configuration {
         hookConfiguration = new HashMap<>();
     }
 
-    public void addRepoName(String name) {
+    public Configuration addRepoName(String name) {
         if (properties.containsKey(REPO_NAME))
             properties.replace(REPO_NAME, name);
         else
             properties.put(REPO_NAME, name);
+        return this;
     }
 
-    public void addSVNServerPath(String path) {
+    public Configuration addSVNServerPath(String path) {
         if (properties.containsKey(SVN_SERVER_PATH))
             properties.replace(SVN_SERVER_PATH, path);
         else
             properties.put(SVN_SERVER_PATH, path);
+        return this;
     }
 
-    public void addHookConfig(String hookBody, String name) {
+    public Configuration addHookConfig(String hookBody, String name) {
         hookConfiguration.put(name, hookBody);
+        return this;
     }
 
     public void clearHooks() {
@@ -65,8 +68,7 @@ public class Configuration {
     }
 
 
-    //todo edit and generate configuration bash file!
-    public File getConfig() throws ConfigurationException {
+    public File build() throws ConfigurationException {
 
         File configurationFile = new File(FILE_NAME);
 
