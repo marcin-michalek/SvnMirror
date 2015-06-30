@@ -14,7 +14,7 @@ public class statusRepoTest {
     @Test
     public void repoTest() {
         try {
-            ConnectToRemoteSVN connectToRemoteSVN = new ConnectToRemoteSVN("svn", "svn", "svn://192.168.2.111/stosowana/");
+            ConnectToRemoteSVN connectToRemoteSVN = new ConnectToRemoteSVN("svn", "svn", "svn://192.168.2.111/asdfasdf/");
             System.out.println(connectToRemoteSVN.getRevisions());
         } catch (URISyntaxException e) {
             e.printStackTrace();

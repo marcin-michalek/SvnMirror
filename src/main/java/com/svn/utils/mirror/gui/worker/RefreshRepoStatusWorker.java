@@ -2,6 +2,7 @@ package com.svn.utils.mirror.gui.worker;
 
 import com.svn.utils.mirror.app.Mirror;
 import com.svn.utils.mirror.app.Revision;
+import com.svn.utils.mirror.app.remote.RemoteMirror;
 import com.svn.utils.mirror.gui.main.RevisionListSetter;
 import org.tmatesoft.svn.core.SVNException;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class RefreshRepoStatusWorker extends SwingWorker<List<Revision>, List<Revision>> {
     private RevisionListSetter revisionListSetter;
     private Mirror mirror;
+    private RemoteMirror remoteMirror;
     private boolean shouldWork;
     private List<Revision> currentRevisionList;
 
@@ -25,16 +27,29 @@ public class RefreshRepoStatusWorker extends SwingWorker<List<Revision>, List<Re
         this.shouldWork = true;
         this.currentRevisionList = new ArrayList<>();
     }
+    public RefreshRepoStatusWorker(RevisionListSetter revisionListSetter, RemoteMirror mirror) {
+        this.revisionListSetter = revisionListSetter;
+        this.remoteMirror = mirror;
+        this.shouldWork = true;
+        this.currentRevisionList = new ArrayList<>();
+    }
+
 
     @Override
     protected List<Revision> doInBackground() throws Exception {
         while (shouldWork) {
             sleep(3000);
             if (newRevisionsAdded()) {
-                publish(mirror.getRevisions());
+                if(mirror != null)
+                    publish(mirror.getRevisions());
+                else
+                    publish(remoteMirror.getRevisions());
             }
         }
-        return mirror.getRevisions();
+        if(mirror != null)
+            return mirror.getRevisions();
+        else
+             return remoteMirror.getRevisions();
     }
 
     private void sleep(int i) {
@@ -56,12 +71,25 @@ public class RefreshRepoStatusWorker extends SwingWorker<List<Revision>, List<Re
     }
 
     private void publishCurrentRevisionList() throws SVNException {
-        currentRevisionList = mirror.getRevisions();
-        revisionListSetter.setRevisionList(currentRevisionList);
+        if(mirror != null) {
+            currentRevisionList = mirror.getRevisions();
+            revisionListSetter.setRevisionList(currentRevisionList);
+        }
+        else {
+            currentRevisionList = remoteMirror.getRevisions();
+            revisionListSetter.setRevisionList(currentRevisionList);
+        }
+
     }
 
     private boolean newRevisionsAdded() throws SVNException {
-        return currentRevisionList.size() != mirror.getRevisions().size();
+        if(mirror != null) {
+            return currentRevisionList.size() != mirror.getRevisions().size();
+        }
+        else {
+            return currentRevisionList.size() != remoteMirror.getRevisions().size();
+        }
+
     }
 
     public void setShouldWork(boolean shouldWork) {

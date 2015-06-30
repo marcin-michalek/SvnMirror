@@ -15,6 +15,7 @@ public class ConnectOrCreateWindow extends JFrame {
     private JButton connectWithExistingButton;
     private JButton createMirrorButton;
     private JPanel rootPanel;
+    private JCheckBox isRemote;
 
     public ConnectOrCreateWindow(String title) throws HeadlessException {
         super(title);
@@ -26,14 +27,15 @@ public class ConnectOrCreateWindow extends JFrame {
         createMirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainWindow("Create mirroring", RepoAction.CREATE_NEW_REPO_MIRROR);
+                new MainWindow("Create mirroring", RepoAction.CREATE_NEW_REPO_MIRROR,isRemote.isSelected());
+
                 setVisible(false);
             }
         });
         connectWithExistingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainWindow("Attach to existing configuration", RepoAction.CONNECT_TO_EXISTING_REPO_MIRROR);
+                new MainWindow("Attach to existing configuration", RepoAction.CONNECT_TO_EXISTING_REPO_MIRROR,isRemote.isSelected());
                 setVisible(false);
             }
         });

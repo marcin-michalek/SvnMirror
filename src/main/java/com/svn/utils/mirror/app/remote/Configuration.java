@@ -15,13 +15,8 @@ public class Configuration {
     private static final String FINAL_CONFIGURATION_FILE =
             "#!/bin/bash\n" +
                     "\n" +
-                    "SVN_SERVER_PATH=@SVN_SERVER_PATH\n" +
-                    "HOOK_DIR=\"$SVN_SERVER_PATH/hooks\"\n" +
-                    "HOOK_NAMES=@HOOK_NAME\n" +
-                    "HOOK_CONFIGURATIONS=@HOOK_CONF\n" +
                     "\n" +
                     "svnadmin create @REPO_NAME\n" +
-                    "cd $HOOK_DIR\n" +
                     "\n" +
                     "\n";
 
@@ -98,5 +93,7 @@ public class Configuration {
 
         return configurationFile;
     }
-
+    public String getRepoName(){
+        return properties.get(REPO_NAME);
+    }
 }

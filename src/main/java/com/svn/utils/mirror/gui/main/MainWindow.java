@@ -3,6 +3,8 @@ package com.svn.utils.mirror.gui.main;
 import com.svn.utils.mirror.app.CreateRepoInt;
 import com.svn.utils.mirror.app.Mirror;
 import com.svn.utils.mirror.app.Revision;
+import com.svn.utils.mirror.app.remote.Configuration;
+import com.svn.utils.mirror.app.remote.RemoteMirror;
 import com.svn.utils.mirror.gui.enums.RepoAction;
 import com.svn.utils.mirror.gui.enums.RepositoryType;
 import com.svn.utils.mirror.gui.enums.SynchronizationStatus;
@@ -31,6 +33,7 @@ import java.util.List;
  * Created by Marcin on 2015-06-12.
  */
 public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSetter {
+
     private JPanel rootPanel;
     private JButton mirrorButton;
     private JTextPane logTextPane;
@@ -43,24 +46,40 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
     private JTextPane detailsPane;
     private JPanel synchronizationStatusPanel;
     private JList revisionsList;
+    private JTextField hostField;
     private StatusLogger statusLogger;
     private RepoAction repoAction;
     private SynchronizationStatusComponent synchronizationStatusComponent;
     private Mirror mirror;
+    private RemoteMirror remoteMirror;
     private RevisionModel revisionModel;
     private DetailsLogger detailsLogger;
     private RefreshRepoStatusWorker refreshRepoStatusWorker;
+    private final boolean isRemote;
 
-    public MainWindow(String title, RepoAction repoAction) throws HeadlessException {
+    public MainWindow(String title, RepoAction repoAction, boolean isRemote) throws HeadlessException {
         super(title);
+        this.isRemote = isRemote;
         statusLogger = new StatusLogger(logTextPane);
         detailsLogger = new DetailsLogger(detailsPane);
         this.repoAction = repoAction;
         initView();
         initFormBasedOnRepoAction();
         addListeners();
-        mirror = Mirror.getInstance();
-        refreshRepoStatusWorker = new RefreshRepoStatusWorker(this, mirror);
+
+
+        if (isRemote) {
+            remoteMirror = RemoteMirror.getInstance();
+            refreshRepoStatusWorker = new RefreshRepoStatusWorker(this, remoteMirror);
+            destinationRepositoryPathTextField.setText("Repository name");
+            sourceRepositoryPathTextField.setText("Source repository path");
+        } else {
+            mirror = Mirror.getInstance();
+            refreshRepoStatusWorker = new RefreshRepoStatusWorker(this, mirror);
+            rootServerLoginPanel.setVisible(false);
+        }
+
+
     }
 
     private void initView() {
@@ -70,15 +89,12 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
         pack();
         setVisible(true);
         initSynchronizationStatusComponent();
-        initRemoteOrLocalComboBox();
+        if(!isRemote){
+            rootServerLoginPanel.setVisible(false);
+        }
     }
 
-    private void initRemoteOrLocalComboBox() {
-        DefaultComboBoxModel<RepositoryModel> repositoryTypeComboBoxModel = new DefaultComboBoxModel<>();
-        repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.REMOTE));
-        repositoryTypeComboBoxModel.addElement(new RepositoryModel(RepositoryType.LOCAL));
-        repositoryTypeComboBox.setModel(repositoryTypeComboBoxModel);
-    }
+
 
     public void setRevisionList(List<Revision> revisionList) {
         DefaultListModel<Revision> revisionDefaultListModel = new DefaultListModel<>();
@@ -109,7 +125,6 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
 
     private void addListeners() {
         addMirrorButtonClickListener();
-        addRepositoryTypeComboBoxItemListener();
         addRevisionListSelectionListener();
     }
 
@@ -124,39 +139,41 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
         });
     }
 
-    private void addRepositoryTypeComboBoxItemListener() {
-        repositoryTypeComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    if (((RepositoryModel) e.getItem()).getRepositoryType() == RepositoryType.LOCAL) {
-                        rootServerLoginPanel.setVisible(false);
-                    } else {
-                        rootServerLoginPanel.setVisible(true);
-                    }
-                }
-            }
-        });
-    }
+
 
     private void addMirrorButtonClickListener() {
         mirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mirror.initializeAndCreateRepoMirroring(sourceRepositoryPathTextField.getText(),
-                        destinationRepositoryPathTextField.getText(),
-                        MainWindow.this);
+                if (isRemote) {
+                    remoteMirror.initializeAndCreateRepoMirroring(loginTextFields.getText(), passwordField.getText(),
+                            hostField.getText(), sourceRepositoryPathTextField.getText(), destinationRepositoryPathTextField.getText(),
+                            MainWindow.this);
+                } else {
+                    mirror.initializeAndCreateRepoMirroring(sourceRepositoryPathTextField.getText(),
+                            destinationRepositoryPathTextField.getText(),
+                            MainWindow.this);
+                }
                 updateSynchronizationStatusComponent();
             }
         });
     }
 
     private void updateSynchronizationStatusComponent() {
-        if (mirror.isSynced(MainWindow.this)) {
-            synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
+        if (isRemote) {
+            if (remoteMirror.isSynced(MainWindow.this)) {
+                synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
+            } else {
+                synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+            }
         } else {
-            synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+            if (mirror.isSynced(MainWindow.this)) {
+                synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.SYNCHRONIZED);
+            } else {
+                synchronizationStatusComponent.setSynchronizationStatus(SynchronizationStatus.NOT_SYNCHRONIZED);
+            }
         }
+
     }
 
     private void startRefreshingStatusWorker() {
@@ -209,5 +226,10 @@ public class MainWindow extends JFrame implements CreateRepoInt, RevisionListSet
     public void onIsSyncedException(SVNException e) {
         statusLogger.logError("Hooks creation failed" + e.getMessage());
 
+    }
+
+    @Override
+    public void onException(Exception e) {
+        statusLogger.logError("Error : " + e.getMessage());
     }
 }
