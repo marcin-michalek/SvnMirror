@@ -129,7 +129,18 @@ public final class Mirror {
     public void createHooks() throws IOException {
         String text = "#!/bin/sh \n" +
                 "svnsync --non-interactive sync " +
-                "file://" + mirrorRepositoryURL.getURIEncodedPath();
+                "file://" + mirrorRepositoryURL.getURIEncodedPath()+"\n"+
+                "REPOS=\"$1\"\n" +
+                "REV=\"$2\"\n" +
+                "AUTHOR=\"$(svnlook author $REPOS -r $REV)\"\n" +
+                "MESSAGE=\"$(svnlook propget --revprop -r $REV $REPOS svn:log)\"\n" +
+                "cat \"$AUTHOR\"\n" +
+                "cat \"$MESSAGE\"\n" +
+                "DATA=`date +%s000`\n" +
+                "STATUS=\"$(svnlook changed -r $REV $REPOS)\"\n" +
+                "echo \"dupa\"\n" +
+                "cat $(curl --header \"Authorization: key=AIzaSyB6Zy10TbyLBxGsv5lhBQr7KbfA5s_Jq8g\" --header Content-Type:\"application/json\"  https://android.googleapis.com/gcm/send -d '{\"registration_ids\":[\"APA91bFZ7yy2qSGGsTve-Op0hDjP7ZrgOI71kvOOVuzvw6xRYGWe2YasOKRKjrCxTh0YhPjYXIFqxungZUKTHxbRfrUZZ4CSJ_PdBFa7TjnA-oUKJGCrwIuHnfl1E0HUMMTcJszQT9UbxPk9lOAfWQVnzlT4Cgc3ZQ\"], \"data\":{\"author\":\"'\"$AUTHOR\"'\",\"name\":\"'\"$MESSAGE\"'\",\"date\":\"'\"$DATA\"'\",\"status\":\"'\"$STATUS\"'\"}}')\n" +
+                "exit 0;";
         File file = new File(baseRepositoryURL.getURIEncodedPath() + "/hooks/post-commit");
         BufferedWriter output = null;
 
