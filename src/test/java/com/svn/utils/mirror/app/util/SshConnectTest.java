@@ -20,7 +20,7 @@ import java.util.List;
 public class SshConnectTest {
 
     private static final String USERNAME = "mar";
-    private static final String PASSWORD = "sjv33dll";
+    private static final String PASSWORD = "***";
     private static final String HOST = "127.0.0.1";
 
     @Test

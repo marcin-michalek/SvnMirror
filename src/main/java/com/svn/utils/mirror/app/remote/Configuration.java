@@ -16,12 +16,12 @@ public class Configuration {
             "#!/bin/bash\n" +
                     "\n" +
                     "SVN_SERVER_PATH=@SVN_SERVER_PATH\n" +
-                    "HOOK_DIR=\"$SVN_SERVER_PATH/hook\"\n" +
+                    "HOOK_DIR=\"$SVN_SERVER_PATH/hooks\"\n" +
                     "HOOK_NAMES=@HOOK_NAME\n" +
                     "HOOK_CONFIGURATIONS=@HOOK_CONF\n" +
                     "\n" +
                     "svnadmin create @REPO_NAME\n" +
-                    "cd HOOK_DIR\n" +
+                    "cd $HOOK_DIR\n" +
                     "\n" +
                     "\n";
 
@@ -30,6 +30,7 @@ public class Configuration {
     private static final String SVN_SERVER_PATH = "@SVN_SERVER_PATH";
     private static final String HOOK_NAME = "@HOOK_NAME";
     private static final String HOOK_CONF = "@HOOK_CONF";
+
     private Map<String, String> properties;
     private Map<String, String> hookConfiguration;
 

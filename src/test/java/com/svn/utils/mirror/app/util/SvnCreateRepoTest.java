@@ -24,11 +24,10 @@ public class SvnCreateRepoTest {
                 "\"#!bin/bash\n" +
                 "echo \"działam\"\"","pre-commit").build();
 
-        SshConnect connect = new SshConnect("mar","sjv33dll","127.0.0.1");
+        SshConnect connect = new SshConnect("mar","***","127.0.0.1");
         connect.sendFile(configuration);
         List<String> result = connect.executeCommands(new ArrayList<String>(){
             {
-                add("ls");
                 add("sh conf.sh");
                 add("rm conf.sh");
             }
