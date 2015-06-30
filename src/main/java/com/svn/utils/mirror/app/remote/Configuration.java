@@ -25,7 +25,7 @@ public class Configuration {
                     "\n" +
                     "\n";
 
-    private static final String FILE_NAME = "conf.sh";
+    private static final String FILE_NAME = "./conf.sh";
     private static final String REPO_NAME = "@REPO_NAME";
     private static final String SVN_SERVER_PATH = "@SVN_SERVER_PATH";
     private static final String HOOK_NAME = "@HOOK_NAME";

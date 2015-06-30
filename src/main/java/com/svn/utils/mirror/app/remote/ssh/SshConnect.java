@@ -15,8 +15,18 @@ public class SshConnect {
 
     private Session session;
     private static final String CAN_CREATE_REPO = "svnadmin --version";
+    private final String user;
+    private final String host;
+    private final String password;
 
     public SshConnect(String user, String password, String host) throws JSchException {
+        this.password = password;
+        this.host = host;
+        this.user = user;
+    }
+    private void createSession() throws JSchException {
+        if(session!=null)
+            session.disconnect();
         JSch jSch = new JSch();
         session = jSch.getSession(user, host);
         session.setPassword(password);
@@ -25,22 +35,25 @@ public class SshConnect {
         session.setConfig(config);
     }
     public void sendFile(File configuration) throws JSchException, IOException, SftpException, CommandNotFoundException, ConfigurationException {
-
+        createSession();
         session.connect();
         Channel channel = session.openChannel("exec");
         channel.connect();
         execute(channel,CAN_CREATE_REPO);
+        channel.disconnect();
         channel = session.openChannel("sftp");
+        channel.connect();
         ChannelSftp channelSftp = (ChannelSftp)channel;
         File configurationFile = configuration;
-        channelSftp.put(new FileInputStream(configurationFile),"./"+configurationFile.getName());
+        channelSftp.put(new FileInputStream(configurationFile),configuration.getName());
         channel.disconnect();
+        session.disconnect();
 
     }
     public List<String> executeCommands(List<String> commands) throws CommandNotFoundException {
         List<String> result = new ArrayList<>(commands.size());
         try {
-
+            createSession();
             session.connect();
             for (String command : commands) {
                 Channel channel = session.openChannel("exec");

@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.naming.ConfigurationException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +20,11 @@ import java.util.List;
 public class SshConnectTest {
 
     private static final String USERNAME = "mar";
-    private static final String PASSWORD = "******";
+    private static final String PASSWORD = "sjv33dll";
     private static final String HOST = "127.0.0.1";
 
     @Test
-    public void executeCommandInSsh() throws JSchException, CommandNotFoundException {
+    public void executeCommandInSshTest() throws JSchException, CommandNotFoundException {
         SshConnect connect = new SshConnect(USERNAME,PASSWORD,HOST);
         List<String> result = connect.executeCommands(new ArrayList<String>(){
             {
